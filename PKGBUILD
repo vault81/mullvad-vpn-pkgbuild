@@ -6,8 +6,11 @@
 # Contributor: Linus Färnstrand <linus at mullvad dot net>
 # Contributor: Emīls Piņķis <emil at mullvad dot net>
 # Contributor: Andrej Mihajlov <and at mullvad dot net>
-pkgname=mullvad-vpn
-pkgver=2023.4
+pkgname=mullvad-vpn-tailscale-fix-git
+_pkgname=mullvad-vpn
+provides=('mullvad-vpn')
+conflicts=('mullvad-vpn')
+pkgver=2023.4_ts_fx
 pkgrel=1
 pkgdesc="The Mullvad VPN client app for desktop"
 arch=('x86_64')
@@ -16,21 +19,17 @@ license=('GPL3')
 depends=('gtk3' 'iputils' 'libnotify' 'nss')
 makedepends=('cargo' 'git' 'go' 'libxcrypt-compat' 'nodejs>=16' 'npm>=8.3' 'protobuf')
 options=('!lto')
-install="$pkgname.install"
-_tag=a64b10fdd4c9fefa6d25fd2a94c0ea6cbc7eebc0  # tags/2023.4^0
+install="$_pkgname.install"
+_tag=573ded0eab7526d65c83948c7351a3d00be58390  # tags/2023.4^0
 _commit=29a4c7205e78c651fcd1b8c3a55181c0d86a50d3
-source=("git+https://github.com/mullvad/mullvadvpn-app.git#commit=${_tag}?signed"
+source=("git+https://github.com/vault81/mullvadvpn-app.git#commit=${_tag}?signed"
         "git+https://github.com/mullvad/mullvadvpn-app-binaries.git#commit=${_commit}?signed"
         'no-rpm.diff'
-        "$pkgname.sh")
+        "$_pkgname.sh")
 sha256sums=('SKIP'
             'SKIP'
             'ea35edffea2cbbb05586abce19581fdd9f133801ed47e6af30fa64a29c5cf116'
             '2262346cb57deb187fe32a88ccd873dab669598889269088e749197c6e88954f')
-validpgpkeys=('EA0A77BF9E115615FC3BD8BC7653B940E494FE87' # Linus Färnstrand (code signing key) <linus@mullvad.net>
-              '8339C7D2942EB854E3F27CE5AEE9DECFD582E984' # David Lönnhager (code signing) <david.l@mullvad.net>
-              '4B986EF5222BA1B810230C602F391DE6B00D619C' # Oskar Nyberg (code signing) <oskar@mullvad.net>
-              )
 
 pkgver() {
   cd "$srcdir/mullvadvpn-app"
@@ -142,7 +141,7 @@ package() {
   ln -s "/opt/Mullvad VPN/resources/mullvad-problem-report" "$pkgdir/usr/bin/"
 
   # Link to the GUI binary
-  install -m755 "$srcdir/$pkgname.sh" "$pkgdir/usr/bin/$pkgname"
+  install -m755 "$srcdir/$_pkgname.sh" "$pkgdir/usr/bin/$_pkgname"
 
   # Install completions
   install -Dm644 build/shell-completions/mullvad.bash \
@@ -156,11 +155,11 @@ package() {
   cd dist
   ar x *.deb
   bsdtar -xf data.tar.xz
-  install -Dm644 "usr/share/applications/$pkgname.desktop" -t \
+  install -Dm644 "usr/share/applications/$_pkgname.desktop" -t \
     "$pkgdir/usr/share/applications/"
 
   for icon_size in 16 32 48 64 128 256 512 1024; do
     icons_dir=usr/share/icons/hicolor/${icon_size}x${icon_size}/apps
-    install -Dm644 ${icons_dir}/$pkgname.png -t "$pkgdir/${icons_dir}/"
+    install -Dm644 ${icons_dir}/$_pkgname.png -t "$pkgdir/${icons_dir}/"
   done
 }
